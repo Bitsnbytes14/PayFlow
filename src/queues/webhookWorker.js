@@ -2,10 +2,11 @@ const { Worker } = require('bullmq');
 const axios = require('axios');
 const pool = require('../config/db');
 
-const connection = {
-  host: '127.0.0.1',
-  port: 6379
-};
+const IORedis = require('ioredis');
+
+const connection = process.env.REDIS_URL 
+  ? new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null })
+  : { host: '127.0.0.1', port: 6379 };
 
 const worker = new Worker('webhooks', async (job) => {
   const { webhookUrl, payload, webhookLogId } = job.data;

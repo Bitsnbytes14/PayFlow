@@ -175,6 +175,6 @@ http://localhost:3000/api
 
 ## 👨‍💻 Author
 
-Built by **[Your Name]**
+Built by **Mohammad Ahmad**
 
 ---

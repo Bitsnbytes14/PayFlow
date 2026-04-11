@@ -2,7 +2,26 @@ require('dotenv').config();
 require('./queues/webhookWorker');
 
 const express = require('express');
-const app = express();
+const cors    = require('cors');
+const app     = express();
+
+// ✅ CORS — allow frontend dev server and production URL
+const allowedOrigins = [
+  'http://localhost:5173',           // Vite dev server
+  'http://localhost:5174',           // Vite dev server (alt port)
+  'http://localhost:4173',           // Vite preview
+  process.env.FRONTEND_URL,         // production frontend URL (set in .env)
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (Postman, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,                // needed because axios sends withCredentials: true
+}));
 
 app.use(express.json());
 

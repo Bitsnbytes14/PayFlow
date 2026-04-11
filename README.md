@@ -1,5 +1,4 @@
 # PayFlow 💳
-
 A production-grade payment gateway simulator built to mirror real-world payment infrastructure. Implements core concepts used by payment companies like Juspay, Razorpay, and Stripe — including idempotency, state machines, async webhooks, and ACID-compliant transactions.
 
 ---

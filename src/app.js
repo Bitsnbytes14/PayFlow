@@ -11,6 +11,7 @@ const allowedOrigins = [
   'http://localhost:5174',           // Vite dev server (alt port)
   'http://localhost:4173',           // Vite preview
   process.env.FRONTEND_URL,         // production frontend URL (set in .env)
+  'https://payflow-frontend.vercel.app' // Vercel production
 ].filter(Boolean);
 
 app.use(cors({

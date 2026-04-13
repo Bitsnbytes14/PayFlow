@@ -5,6 +5,8 @@ const express = require('express');
 const cors    = require('cors');
 const app     = express();
 
+const apiKeyMiddleware = require('./middleware/apiKey');
+
 // ✅ CORS — allow frontend dev server and production URL
 const allowedOrigins = [
   'http://localhost:5173',           // Vite dev server
@@ -27,9 +29,9 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/auth',     require('./routes/auth'));
-app.use('/api/orders',   require('./routes/orders'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/orders',   apiKeyMiddleware, require('./routes/orders'));
+app.use('/api/payments', apiKeyMiddleware, require('./routes/payments'));
+app.use('/api/webhooks', apiKeyMiddleware, require('./routes/webhooks'));
 
 app.get('/health', (_, res) => res.json({
   status: 'ok',

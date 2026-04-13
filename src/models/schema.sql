@@ -10,8 +10,12 @@ CREATE TABLE merchants (
   email VARCHAR(100) UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   webhook_url TEXT,
+  api_key TEXT UNIQUE,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- For existing deployments
+ALTER TABLE merchants ADD COLUMN IF NOT EXISTS api_key TEXT UNIQUE;
 
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const crypto = require('crypto');
 
 // Register a new merchant
 router.post('/register', async (req, res) => {
@@ -37,12 +38,15 @@ router.post('/register', async (req, res) => {
     // Hash password safely
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Generate API key
+    const apiKey = crypto.randomBytes(32).toString('hex');
+
     // Insert into DB
     const result = await pool.query(
-      `INSERT INTO merchants (name, email, password_hash, webhook_url)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO merchants (name, email, password_hash, webhook_url, api_key)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, name, email`,
-      [name, email, passwordHash, webhookUrl || null]
+      [name, email, passwordHash, webhookUrl || null, apiKey]
     );
 
     const merchant = result.rows[0];
@@ -54,7 +58,7 @@ router.post('/register', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.status(201).json({ merchant, token });
+    res.status(201).json({ merchant, token, apiKey });
 
   } catch (err) {
     console.error("REGISTER ERROR:", err); //  important for debugging
@@ -142,6 +146,25 @@ router.patch('/webhook', require('../middleware/auth'), async (req, res) => {
     res.status(500).json({
       error: "Internal server error"
     });
+  }
+});
+
+// Get API Key
+router.get('/api-key', require('../middleware/auth'), async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT api_key FROM merchants WHERE id = $1',
+      [req.merchant.id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Merchant not found' });
+    }
+
+    res.json({ apiKey: result.rows[0].api_key });
+  } catch (err) {
+    console.error("GET API KEY ERROR:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
